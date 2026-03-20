@@ -23,7 +23,7 @@ INSTALLED_APPS = [
 
     # Third party
     'rest_framework',
-    'django_cas_ng',
+    #'django_cas_ng',
 
     # Our apps
     'authentication',
@@ -39,7 +39,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django_cas_ng.middleware.CASMiddleware',
+    #'django_cas_ng.middleware.CASMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -76,13 +76,13 @@ DATABASES = {
 CAS_SERVER_URL = 'https://login.clarkson.edu/cas/'
 CAS_VERSION = '3'
 CAS_CREATE_USER = True
-LOGIN_URL = '/auth/login/'
+LOGIN_URL = '/admin/login/'
 LOGOUT_URL = '/auth/logout/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-    'django_cas_ng.backends.CASBackend',
+    #'django_cas_ng.backends.CASBackend',
 ]
 
 # REST Framework
