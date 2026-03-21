@@ -1,10 +1,14 @@
-from django.shortcuts import render
-
-# Create your views here.
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from .models import Order
 from .serializers import OrderSerializer
+from .utils import assign_qr_and_pin
+from notifications.utils import (
+    send_order_ready_email,
+    send_order_ready_sms,
+    send_order_compromised_email_student,
+    send_compromised_sms,
+)
 
 
 class OrderListCreateView(generics.ListCreateAPIView):
@@ -67,6 +71,28 @@ class OrderDetailView(generics.RetrieveUpdateAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        # Update status
         order.status = new_status
         order.save()
+
+        # Trigger notifications based on new status
+        if new_status == 'ready':
+            # Generate QR code and PIN
+            assign_qr_and_pin(order)
+
+            # Send notifications
+            try:
+                send_order_ready_email(order)
+                send_order_ready_sms(order)
+            except Exception as e:
+                print(f"Notification error: {e}")
+
+        elif new_status == 'compromised':
+            # Notify student
+            try:
+                send_order_compromised_email_student(order)
+                send_compromised_sms(order)
+            except Exception as e:
+                print(f"Notification error: {e}")
+
         return Response(OrderSerializer(order).data)

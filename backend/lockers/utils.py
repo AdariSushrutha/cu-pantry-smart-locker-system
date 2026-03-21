@@ -10,24 +10,19 @@ def check_temperature_violations():
     mark the order as compromised.
     """
 
-    # Get all occupied lockers
     occupied_lockers = Locker.objects.filter(status='occupied')
-
     violated_orders = []
 
     for locker in occupied_lockers:
-        # Get temperature logs from the last 30 minutes
         thirty_minutes_ago = timezone.now() - timedelta(minutes=30)
         recent_logs = TemperatureLog.objects.filter(
             locker=locker,
             recorded_at__gte=thirty_minutes_ago
         ).order_by('recorded_at')
 
-        # Need at least 2 readings to detect a violation
         if recent_logs.count() < 2:
             continue
 
-        # Check if ALL recent readings are above 41°F
         all_above_threshold = all(log.temperature > 41.0 for log in recent_logs)
 
         if all_above_threshold:
@@ -38,7 +33,7 @@ def check_temperature_violations():
                 order.status = 'compromised'
                 order.save()
 
-                # Mark all recent logs as violations
+                # Mark logs as violations
                 recent_logs.update(is_violation=True)
 
                 # Release the locker
@@ -46,11 +41,26 @@ def check_temperature_violations():
                 locker.current_order = None
                 locker.save()
 
+                temperature_readings = [log.temperature for log in recent_logs]
+
+                # Send notifications
+                try:
+                    from notifications.utils import (
+                        send_order_compromised_email_student,
+                        send_order_compromised_email_manager,
+                        send_compromised_sms,
+                    )
+                    send_order_compromised_email_student(order)
+                    send_order_compromised_email_manager(order, temperature_readings)
+                    send_compromised_sms(order)
+                except Exception as e:
+                    print(f"Notification error: {e}")
+
                 violated_orders.append({
                     'order_id': order.id,
                     'locker_number': locker.locker_number,
                     'student': order.student.username,
-                    'temperature_readings': [log.temperature for log in recent_logs],
+                    'temperature_readings': temperature_readings,
                 })
 
     return violated_orders

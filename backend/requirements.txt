@@ -168,6 +168,7 @@ PyYAML==6.0.2
 pyzmq @ file:///private/var/folders/k1/30mswbxs7r1g6zwn8y4fyt500000gp/T/abs_43pxpbos3z/croot/pyzmq_1705605108344/work
 qiskit==2.2.1
 qiskit-aer==0.17.2
+qrcode==8.2
 regex==2024.11.6
 requests @ file:///home/conda/feedstock_root/build_artifacts/requests_1717057054362/work
 requests-toolbelt==1.0.0
