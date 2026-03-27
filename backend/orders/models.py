@@ -1,16 +1,7 @@
 from django.db import models
-
-# Create your models here.
-from django.db import models
 from django.contrib.auth.models import User
 
 class Order(models.Model):
-
-    TEMPERATURE_CHOICES = [
-        ('frozen', 'Frozen'),
-        ('refrigerated', 'Refrigerated'),
-        ('ambient', 'Ambient'),
-    ]
 
     STATUS_CHOICES = [
         ('submitted', 'Submitted'),
@@ -22,9 +13,21 @@ class Order(models.Model):
         ('compromised', 'Compromised'),
     ]
 
+    TEMPERATURE_CHOICES = [
+        ('frozen', 'Frozen'),
+        ('refrigerated', 'Refrigerated'),
+        ('ambient', 'Ambient'),
+    ]
+
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
-    temperature_category = models.CharField(max_length=20, choices=TEMPERATURE_CHOICES)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='submitted')
+    temperature_category = models.CharField(
+        max_length=20,
+        choices=TEMPERATURE_CHOICES,
+        null=True,
+        blank=True
+    )
+    requires_lower_locker = models.BooleanField(default=False)
     week_number = models.IntegerField()
     year = models.IntegerField()
     pickup_date = models.DateField(null=True, blank=True)
