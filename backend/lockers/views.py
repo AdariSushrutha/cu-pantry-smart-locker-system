@@ -1,6 +1,3 @@
-from django.shortcuts import render
-
-# Create your views here.
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -13,8 +10,10 @@ class LockerListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        # Only staff can view all lockers
-        if self.request.user.is_staff:
+        user = self.request.user
+        if user.groups.filter(
+            name__in=['Volunteer', 'Manager', 'Admin']
+        ).exists() or user.is_superuser:
             return Locker.objects.all().order_by('locker_number')
         return Locker.objects.none()
 
@@ -23,8 +22,10 @@ class LockerAssignView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        # Only staff can assign lockers
-        if not request.user.is_staff:
+        # Only volunteers and above can assign lockers
+        if not request.user.groups.filter(
+            name__in=['Volunteer', 'Manager', 'Admin']
+        ).exists() and not request.user.is_superuser:
             return Response(
                 {'error': 'You do not have permission to assign lockers.'},
                 status=status.HTTP_403_FORBIDDEN
@@ -36,12 +37,10 @@ class LockerAssignView(APIView):
             order = serializer.validated_data['order']
             locker = serializer.validated_data['locker']
 
-            # Assign locker to order
             locker.status = 'occupied'
             locker.current_order = order
             locker.save()
 
-            # Update order status
             order.status = 'locker_assigned'
             order.save()
 
@@ -60,12 +59,14 @@ class TemperatureLogListView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        if self.request.user.is_staff:
+        user = self.request.user
+        if user.groups.filter(
+            name__in=['Volunteer', 'Manager', 'Admin']
+        ).exists() or user.is_superuser:
             return TemperatureLog.objects.all().order_by('-recorded_at')
         return TemperatureLog.objects.none()
 
     def perform_create(self, serializer):
-        # Check for temperature violation (over 41°F)
         temperature = serializer.validated_data.get('temperature')
         is_violation = temperature > 41.0
         serializer.save(is_violation=is_violation)
