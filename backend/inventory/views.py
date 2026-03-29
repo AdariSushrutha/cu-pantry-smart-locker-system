@@ -1,22 +1,18 @@
-from django.shortcuts import render
-
-# Create your views here.
 from rest_framework import generics, permissions
 from .models import InventoryItem
 from .serializers import InventoryItemSerializer
-
-
-class IsStaffOrReadOnly(permissions.BasePermission):
-    """Students can view inventory, only staff can edit"""
-    def has_permission(self, request, view):
-        if request.method in ['GET', 'HEAD', 'OPTIONS']:
-            return request.user.is_authenticated
-        return request.user.is_staff
+from authentication.permissions import IsManager
 
 
 class InventoryListCreateView(generics.ListCreateAPIView):
     serializer_class = InventoryItemSerializer
-    permission_classes = [IsStaffOrReadOnly]
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            # Everyone logged in can view inventory
+            return [permissions.IsAuthenticated()]
+        # Only managers can add items
+        return [IsManager()]
 
     def get_queryset(self):
         queryset = InventoryItem.objects.all().order_by('name')
@@ -41,5 +37,11 @@ class InventoryListCreateView(generics.ListCreateAPIView):
 
 class InventoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = InventoryItemSerializer
-    permission_classes = [IsStaffOrReadOnly]
     queryset = InventoryItem.objects.all()
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            # Everyone logged in can view individual items
+            return [permissions.IsAuthenticated()]
+        # Only managers can update or delete items
+        return [IsManager()]
