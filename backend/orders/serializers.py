@@ -38,6 +38,7 @@ class OrderSerializer(serializers.ModelSerializer):
     def validate(self, data):
         request = self.context.get('request')
         student = request.user
+        items = request.data.get('items', [])
 
         # Get current week and year
         today = datetime.date.today()
@@ -56,6 +57,12 @@ class OrderSerializer(serializers.ModelSerializer):
                 "You have already placed your locker order for this week. "
                 "You may place a new order starting Monday."
             )
+        
+        # Enforce 5-10 item limit
+        if len(items) < 5 or len(items) > 10:
+            raise serializers.ValidationError(
+                "You must select between 5 and 10 items per order."
+        )
 
         # Inject week and year into data
         data['week_number'] = week_number
