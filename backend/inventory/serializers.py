@@ -8,7 +8,7 @@ class InventoryItemSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'name',
-            'temperature_category',
+            'barcode',
             'category',
             'quantity',
             'unit',

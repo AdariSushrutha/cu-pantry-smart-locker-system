@@ -3,12 +3,6 @@ from django.db import models
 
 class InventoryItem(models.Model):
 
-    TEMPERATURE_CHOICES = [
-        ('frozen', 'Frozen'),
-        ('refrigerated', 'Refrigerated'),
-        ('ambient', 'Ambient'),
-    ]
-
     CATEGORY_CHOICES = [
         ('food', 'Food'),
         ('hygiene', 'Hygiene'),
@@ -16,7 +10,7 @@ class InventoryItem(models.Model):
     ]
 
     name = models.CharField(max_length=255)
-    temperature_category = models.CharField(max_length=20, choices=TEMPERATURE_CHOICES, default='ambient')
+    barcode = models.CharField(max_length=50, null=True, blank=True, unique=True)
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='food')
     quantity = models.IntegerField(default=0)
     unit = models.CharField(max_length=50, default='item')

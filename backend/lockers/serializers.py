@@ -48,13 +48,6 @@ class LockerAssignSerializer(serializers.Serializer):
                 f"Locker {locker.locker_number} is not available."
             )
 
-        # Check temperature match
-        if locker.temperature_type != order.temperature_category:
-            raise serializers.ValidationError(
-                f"Locker temperature type ({locker.temperature_type}) does not "
-                f"match order temperature category ({order.temperature_category})."
-            )
-
         data['order'] = order
         data['locker'] = locker
         return data

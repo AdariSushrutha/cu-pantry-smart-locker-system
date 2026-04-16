@@ -14,20 +14,9 @@ class Order(models.Model):
         ('compromised', 'Compromised'),
     ]
 
-    TEMPERATURE_CHOICES = [
-        ('frozen', 'Frozen'),
-        ('refrigerated', 'Refrigerated'),
-        ('ambient', 'Ambient'),
-    ]
 
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='submitted')
-    temperature_category = models.CharField(
-        max_length=20,
-        choices=TEMPERATURE_CHOICES,
-        null=True,
-        blank=True
-    )
     requires_lower_locker = models.BooleanField(default=False)
     week_number = models.IntegerField()
     year = models.IntegerField()

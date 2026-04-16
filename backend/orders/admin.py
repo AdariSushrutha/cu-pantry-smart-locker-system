@@ -4,8 +4,8 @@ from .models import Order, OrderItem
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['id', 'student', 'temperature_category', 'status', 'requires_lower_locker', 'week_number', 'year', 'created_at']
-    list_filter = ['status', 'temperature_category', 'requires_lower_locker']
+    list_display = ['id', 'student', 'status', 'requires_lower_locker', 'week_number', 'year', 'created_at']
+    list_filter = ['status', 'requires_lower_locker']
     search_fields = ['student__username']
 
 
